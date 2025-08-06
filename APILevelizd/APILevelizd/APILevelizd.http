@@ -1,0 +1,6 @@
+@APILevelizd_HostAddress = http://localhost:5267
+
+GET {{APILevelizd_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
