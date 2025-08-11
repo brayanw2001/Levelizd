@@ -1,8 +1,6 @@
 using APILevelizd.Context;
 using Microsoft.EntityFrameworkCore;
 
-DotNetEnv.Env.Load();
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
