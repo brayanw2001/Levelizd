@@ -1,6 +1,8 @@
 using APILevelizd.Context;
 using Microsoft.EntityFrameworkCore;
 
+DotNetEnv.Env.Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -10,9 +12,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+var dbPassword = builder.Configuration["DB_PASSWORD"];
 //string mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
-string mySqlConnection = $"{builder.Configuration.GetConnectionString("DefaultConnection")}{dbPassword}";   //string de conexão ao banco de dados
+string mySqlConnection = $"{builder.Configuration.GetConnectionString("DefaultConnection")};pwd={dbPassword}";   //string de conexão ao banco de dados
 
 
 builder.Services.AddDbContext<AppDbContext>(options =>
