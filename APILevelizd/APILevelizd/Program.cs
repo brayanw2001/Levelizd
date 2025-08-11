@@ -10,7 +10,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-string mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+//string mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+string mySqlConnection = $"{builder.Configuration.GetConnectionString("DefaultConnection")}{dbPassword}";   //string de conexão ao banco de dados
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
                               options.UseMySql(mySqlConnection,
