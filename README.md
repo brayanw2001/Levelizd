@@ -4,10 +4,15 @@
 
 A ideia é de uma plataforma social para manter **registros, notas e resenhas de jogos** — insipirado no Letterboxd.
 
-## Recursos idealizados
+##  🚀 Recursos idealizados
 
 - ✅ Manter registro de jogos que você **jogou**, **está jogando**, ou quer **jogar**
 - ⭐ Dar nota e tecer comentários sobre um jogo finalizado
 - 🧾 Criar listas personalizadas
 - 🔎 Explorar o que outras pessoas estão jogando
 - 👤 Perfil de usuário com feed
+
+##  🛠  Tecnologias utilizadas até o momento
+
+- **Backend:** ASP.NET Core / Entity Framework / RESTful API
+- **Banco de Dados:** SQL Server
