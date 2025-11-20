@@ -1,4 +1,6 @@
 using APILevelizd.Context;
+using APILevelizd.Repositories.Interfaces;
+using APILevelizd.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +16,11 @@ var dbPassword = builder.Configuration["DB_PASSWORD"];
 //string mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 string mySqlConnection = $"{builder.Configuration.GetConnectionString("DefaultConnection")};pwd={dbPassword}";   //string de conexão ao banco de dados
 
+
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IGameRepository, GameRepository>();
+//builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+//builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
                               options.UseMySql(mySqlConnection,
