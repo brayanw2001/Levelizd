@@ -16,7 +16,7 @@ namespace APILevelizd.Repositories
 
         public IEnumerable<T> GetAll()
         {
-            return _context.Set<T>().ToList();
+            return _context.Set<T>().ToList();      //.Set<T>: acessa uma coleção/tabela de tipo T
         }
 
         public T? Get(Expression<Func<T, bool>> predicate)
