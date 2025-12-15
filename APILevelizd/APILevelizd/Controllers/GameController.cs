@@ -21,14 +21,14 @@ public class GameController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Game>> GetAll()
+    public ActionResult<IEnumerable<Game>> GetGames()
     {
         var games = _repository.GetAll();
         return Ok(games);
     }
 
     [HttpGet("{name}", Name = "ObterJogo")]
-    public ActionResult<Game> Get(string name)
+    public ActionResult<Game> Get(string name)          // trocar para id?
     {
         var game = _repository.Get(g => g.Name == name);
 
@@ -50,7 +50,7 @@ public class GameController : ControllerBase
     [HttpPut]
     public ActionResult<Game> Put (int id, Game game)
     {
-        if (id != game.GameId)
+        if (game.GameId != id)
         {
             return BadRequest("Dados inválidos. O id foi modificado.");
         }
@@ -67,7 +67,7 @@ public class GameController : ControllerBase
 
         if (game is null)
         {
-            return BadRequest("Não foi encontrado um game com o id = {id}");
+            return NotFound($"Não foi encontrado um game com o id = {id}");
         }
 
         var gameExcluido = game;
