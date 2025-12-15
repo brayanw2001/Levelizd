@@ -24,7 +24,7 @@ public class ReviewController : Controller
         return Ok(reviews);
     }
 
-    [HttpGet("{name}", Name = "ObterReview")]
+    [HttpGet("{id}", Name = "ObterReview")]
     public ActionResult<Review> Get(int id)
     {
         var review = _repository.Get(r => r.ReviewId == id);
