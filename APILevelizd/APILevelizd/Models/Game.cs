@@ -17,6 +17,6 @@ public class Game
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public Genres Genre { get; set; }
-
+    [JsonIgnore]
     public ICollection<Review>? Reviews { get; set; }            // um game vai ter várias reviews
 }

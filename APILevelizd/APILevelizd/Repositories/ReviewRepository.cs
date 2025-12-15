@@ -1,6 +1,7 @@
 ﻿using APILevelizd.Context;
 using APILevelizd.Models;
 using APILevelizd.Repositories.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace APILevelizd.Repositories
 {

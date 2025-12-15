@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace APILevelizd.Controllers;
 
-[ApiController]
 [Route("[controller]")]
+[ApiController]
 public class GameController : ControllerBase
 {
 
@@ -21,12 +21,13 @@ public class GameController : ControllerBase
     }
 
     [HttpGet]
-    public IEnumerable<Game> GetAll()
+    public ActionResult<IEnumerable<Game>> GetAll()
     {
-        return _repository.GetAll();
+        var games = _repository.GetAll();
+        return Ok(games);
     }
 
-    [HttpGet("{name}",Name = "ObterJogo")]
+    [HttpGet("{name}", Name = "ObterJogo")]
     public ActionResult<Game> Get(string name)
     {
         var game = _repository.Get(g => g.Name == name);
@@ -34,7 +35,7 @@ public class GameController : ControllerBase
         if (game is null)
 {            return NotFound("Jogo não encontrado...");}
 
-        return game;
+        return Ok(game);
     }
 
     [HttpPost]
@@ -43,7 +44,37 @@ public class GameController : ControllerBase
         var novoJogo = _repository.Create(game);
 
         return new CreatedAtRouteResult("ObterJogo",
-            new { nome = game.Name });
+            new { name = game.Name }, novoJogo);
+    }
+
+    [HttpPut]
+    public ActionResult<Game> Put (int id, Game game)
+    {
+        if (id != game.GameId)
+        {
+            return BadRequest("Dados inválidos. O id foi modificado.");
+        }
+
+        _repository.Update(game);
+        // considerar se não precisa de uma nova validação aqui
+        return Ok(game);
+    }
+
+    [HttpDelete("{id:int:min(1)}")]
+    public ActionResult<Game> Delete (int id)
+    {
+        var game = _repository.Get(g => g.GameId == id);
+
+        if (game is null)
+        {
+            return BadRequest("Não foi encontrado um game com o id = {id}");
+        }
+
+        var gameExcluido = game;
+        _repository.Delete(game);
+
+        return Ok(gameExcluido);
+
     }
 
 }
