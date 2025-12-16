@@ -16,7 +16,7 @@ namespace APILevelizd.Controllers
             _repository = repository;
         }
 
-        [HttpGet("userreviews")]
+        [HttpGet]
         public ActionResult<User> GetUsers()
         {
             var users = _repository.GetAll();
@@ -35,10 +35,13 @@ namespace APILevelizd.Controllers
             return Ok(user);
         }
 
-        [HttpGet]
+        [HttpGet("userreviews")]
         public ActionResult<User> GetUserReviews(string user)
         {
             var reviews = _repository.UserReviews(user);
+
+            if (reviews is null)
+                return NotFound($"Não foi encontrado um usuário com nome {user}");
 
             return Ok(reviews);
         }
@@ -51,7 +54,7 @@ namespace APILevelizd.Controllers
 
             var novoUsuario = _repository.Create(user);
 
-            return new CreatedAtRouteResult("ObterCategoria",
+            return new CreatedAtRouteResult("ObterUser",
                 new { id = user.UserId}, novoUsuario);
         }
 

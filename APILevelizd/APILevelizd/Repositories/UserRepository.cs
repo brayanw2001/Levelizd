@@ -18,6 +18,10 @@ namespace APILevelizd.Repositories
                                             // alem dos usuarios, inclua suas reviews
                                                                             // filtre pelos usuarios que tenham o nome buscado
             var user = _context.Users.Include(u => u.Reviews).FirstOrDefault(u => u.Name == userName);
+
+            if (user is null)
+                return null;
+
             return user.Reviews.ToList();
         }
     }

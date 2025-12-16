@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace APILevelizd.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250811023215_Inicial")]
-    partial class Inicial
+    [Migration("20251216003718_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,7 +37,9 @@ namespace APILevelizd.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext");
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)");
 
                     b.Property<DateTime>("YearOfRelease")
                         .HasColumnType("datetime(6)");
@@ -56,7 +58,8 @@ namespace APILevelizd.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ReviewId"));
 
                     b.Property<string>("Comment")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<int>("GameId")
                         .HasColumnType("int");
@@ -64,8 +67,8 @@ namespace APILevelizd.Migrations
                     b.Property<bool>("IsPlayed")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<float>("Rating")
-                        .HasColumnType("float");
+                    b.Property<decimal>("Rating")
+                        .HasColumnType("decimal(2, 1)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
