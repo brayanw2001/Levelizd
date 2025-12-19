@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace APILevelizd.Controllers;
 
-[Route("[Controller]")]
+[Route("reviews")]
 [ApiController]
-public class ReviewController : Controller
+public class ReviewsController : Controller
 {
     private readonly IRepository<Review> _repository;
 
-    public ReviewController(IRepository<Review> repository)
+    public ReviewsController(IRepository<Review> repository)
     {
         _repository = repository;
     }

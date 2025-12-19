@@ -14,7 +14,7 @@ public class User
 
     //[Required]    
     public string Senha { get; set; }       // ...public?
-    public ICollection<Review>? Reviews { get; }
+    public virtual ICollection<Review>? Reviews { get; }
 
     // adicionar foto futuramente
 }

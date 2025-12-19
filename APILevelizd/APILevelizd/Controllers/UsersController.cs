@@ -5,13 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace APILevelizd.Controllers
 {
-    [Route("[controller]")]             
+    [Route("users")]             
     [ApiController]
-    public class UserController : Controller
+    public class UsersController : Controller
     {
         private readonly IUserRepository _repository;
 
-        public UserController(IUserRepository repository)
+        public UsersController(IUserRepository repository)
         {
             _repository = repository;
         }
@@ -24,7 +24,7 @@ namespace APILevelizd.Controllers
             return Ok(users);
         }
 
-        [HttpGet("{id:int:min(1)}", Name = "ObterUser")]
+        [HttpGet("{id:int}", Name = "GetUser")]
         public ActionResult<User> Get(int id)
         {
             var user = _repository.Get(u => u.UserId == id);
@@ -35,13 +35,13 @@ namespace APILevelizd.Controllers
             return Ok(user);
         }
 
-        [HttpGet("userreviews")]
-        public ActionResult<User> GetUserReviews(string user)
+        [HttpGet("/{userId:int}/reviews")]
+        public ActionResult<User> GetUserReviews(int userId)
         {
-            var reviews = _repository.UserReviews(user);
+            var reviews = _repository.UserReviews(userId);
 
             if (reviews is null)
-                return NotFound($"Não foi encontrado um usuário com nome {user}");
+                return NotFound($"Não foi encontrado um usuário com nome {userId}");
 
             return Ok(reviews);
         }

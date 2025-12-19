@@ -8,14 +8,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace APILevelizd.Controllers;
 
-[Route("[controller]")]
+[Route("games")]
 [ApiController]
-public class GameController : ControllerBase
+public class GamesController : ControllerBase
 {
 
     private readonly IRepository<Game> _repository;
 
-    public GameController(IRepository<Game> repository)
+    public GamesController(IRepository<Game> repository)
     {
         _repository = repository;
     }

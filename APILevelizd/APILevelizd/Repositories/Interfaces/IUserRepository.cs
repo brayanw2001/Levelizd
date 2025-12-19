@@ -4,6 +4,6 @@ namespace APILevelizd.Repositories.Interfaces
 {
     public interface IUserRepository : IRepository<User>
     {
-        IEnumerable<Review> UserReviews(string userName);
+        IEnumerable<Review> UserReviews(int userId);
     }
 }

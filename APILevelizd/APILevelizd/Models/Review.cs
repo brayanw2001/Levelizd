@@ -20,11 +20,11 @@ public class Review
     [Required]
     public int GameId { get; set; }
     [JsonIgnore]
-    public Game? Game { get; set; }
+    public virtual Game? Game { get; set; }
 
     [Required]
     public int UserId { get; set; }
 
     [JsonIgnore]
-    public User? User { get; set; }
+    public virtual User? User { get; set; }
 }
