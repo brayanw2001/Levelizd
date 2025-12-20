@@ -9,17 +9,17 @@ namespace APILevelizd.Controllers
     [ApiController]
     public class UsersController : Controller
     {
-        private readonly IUserRepository _repository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UsersController(IUserRepository repository)
+        public UsersController(IUnitOfWork unitOfWork)
         {
-            _repository = repository;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
         public ActionResult<User> GetUsers()
         {
-            var users = _repository.GetAll();
+            var users = _unitOfWork.UserRepository.GetAll();
 
             return Ok(users);
         }
@@ -27,7 +27,7 @@ namespace APILevelizd.Controllers
         [HttpGet("{id:int}", Name = "GetUser")]
         public ActionResult<User> Get(int id)
         {
-            var user = _repository.Get(u => u.UserId == id);
+            var user = _unitOfWork.UserRepository.Get(u => u.UserId == id);
 
             if (user is null)
                 return NotFound($"Não foi encontrado um usuários com id = {id}.");
@@ -38,7 +38,7 @@ namespace APILevelizd.Controllers
         [HttpGet("/{userId:int}/reviews")]
         public ActionResult<User> GetUserReviews(int userId)
         {
-            var reviews = _repository.UserReviews(userId);
+            var reviews = _unitOfWork.UserRepository.UserReviews(userId);
 
             if (reviews is null)
                 return NotFound($"Não foi encontrado um usuário com nome {userId}");
@@ -52,7 +52,7 @@ namespace APILevelizd.Controllers
             if (user is null)
                 return BadRequest("Dados inválidos.");
 
-            var novoUsuario = _repository.Create(user);
+            var novoUsuario = _unitOfWork.UserRepository.Create(user);
 
             return new CreatedAtRouteResult("ObterUser",
                 new { id = user.UserId}, novoUsuario);
@@ -64,7 +64,8 @@ namespace APILevelizd.Controllers
             if (user.UserId != id)
                 return BadRequest("Dados inválidos. O id foi modificado.");
 
-            _repository.Update(user);
+            _unitOfWork.UserRepository.Update(user);
+            _unitOfWork.Commit();
 
             return Ok(user);
         }
@@ -72,14 +73,15 @@ namespace APILevelizd.Controllers
         [HttpDelete("{id:int:min(1)}")]
         public ActionResult<User> Delete (int id)
         {
-            var user = _repository.Get(u => u.UserId == id);
+            var user = _unitOfWork.UserRepository.Get(u => u.UserId == id);
 
             if (user is null)
                 return NotFound($"Não foi encontrado um game com o id = {id}");
 
             var userExcluido = user;
 
-            _repository.Delete(user);
+            _unitOfWork.UserRepository.Delete(user);
+            _unitOfWork.Commit();
 
             return (userExcluido);
         }

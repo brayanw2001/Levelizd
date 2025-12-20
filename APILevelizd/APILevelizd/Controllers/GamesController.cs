@@ -13,24 +13,25 @@ namespace APILevelizd.Controllers;
 public class GamesController : ControllerBase
 {
 
-    private readonly IRepository<Game> _repository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public GamesController(IRepository<Game> repository)
+    public GamesController(IUnitOfWork unitOfWork)
     {
-        _repository = repository;
+        _unitOfWork = unitOfWork;
     }
+
 
     [HttpGet]
     public ActionResult<IEnumerable<Game>> GetGames()
     {
-        var games = _repository.GetAll();
+        var games = _unitOfWork.GameRepository.GetAll();
         return Ok(games);
     }
 
-    [HttpGet("{name}", Name = "ObterJogo")]
-    public ActionResult<Game> Get(string name)          // trocar para id?
+    [HttpGet("{id:int}", Name = "ObterJogo")]
+    public ActionResult<Game> Get(int id)          // trocar para id?
     {
-        var game = _repository.Get(g => g.Name == name);
+        var game = _unitOfWork.GameRepository.Get(g => g.GameId == id);
 
         if (game is null)
 {            return NotFound("Jogo não encontrado...");}
@@ -41,7 +42,7 @@ public class GamesController : ControllerBase
     [HttpPost]
     public ActionResult<Game> Post (Game game)
     {
-        var novoJogo = _repository.Create(game);
+        var novoJogo = _unitOfWork.GameRepository.Create(game);
 
         return new CreatedAtRouteResult("ObterJogo",
             new { name = game.Name }, novoJogo);
@@ -55,7 +56,8 @@ public class GamesController : ControllerBase
             return BadRequest("Dados inválidos. O id foi modificado.");
         }
 
-        _repository.Update(game);
+        _unitOfWork.GameRepository.Update(game);
+        _unitOfWork.Commit();
         // considerar se não precisa de uma nova validação aqui
         return Ok(game);
     }
@@ -63,7 +65,7 @@ public class GamesController : ControllerBase
     [HttpDelete("{id:int:min(1)}")]
     public ActionResult<Game> Delete (int id)
     {
-        var game = _repository.Get(g => g.GameId == id);
+        var game = _unitOfWork.GameRepository.Get(g => g.GameId == id);
 
         if (game is null)
         {
@@ -71,7 +73,8 @@ public class GamesController : ControllerBase
         }
 
         var gameExcluido = game;
-        _repository.Delete(game);
+        _unitOfWork.GameRepository.Delete(game);
+        _unitOfWork.Commit();
 
         return Ok(gameExcluido);
 
