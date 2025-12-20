@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace APILevelizd.Migrations
 {
     /// <inheritdoc />
-    public partial class Inicial : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,7 +21,7 @@ namespace APILevelizd.Migrations
                 {
                     GameId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "longtext", nullable: true)
+                    Name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     YearOfRelease = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     Genre = table.Column<int>(type: "int", nullable: false)
@@ -58,8 +58,8 @@ namespace APILevelizd.Migrations
                     ReviewId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     IsPlayed = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    Rating = table.Column<float>(type: "float", nullable: false),
-                    Comment = table.Column<string>(type: "longtext", nullable: true)
+                    Rating = table.Column<decimal>(type: "decimal(2,1)", nullable: false),
+                    Comment = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     GameId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false)

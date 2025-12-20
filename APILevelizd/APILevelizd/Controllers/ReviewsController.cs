@@ -1,25 +1,25 @@
 ﻿using APILevelizd.Models;
+using APILevelizd.Repositories;
 using APILevelizd.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APILevelizd.Controllers;
 
-[Route("[Controller]")]
+[Route("reviews")]
 [ApiController]
-public class ReviewController : Controller
+public class ReviewsController : Controller
 {
-    private readonly IRepository<Review> _repository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public ReviewController(IRepository<Review> repository)
+    public ReviewsController(IUnitOfWork unitOfWork)
     {
-        _repository = repository;
+        _unitOfWork = unitOfWork;
     }
-
 
     [HttpGet]
     public ActionResult<IEnumerable<Review>> GetReviews()
     {
-        var reviews = _repository.GetAll().ToList();
+        var reviews = _unitOfWork.ReviewRepository.GetAll().ToList();
 
         return Ok(reviews);
     }
@@ -27,7 +27,7 @@ public class ReviewController : Controller
     [HttpGet("{id}", Name = "ObterReview")]
     public ActionResult<Review> Get(int id)
     {
-        var review = _repository.Get(r => r.ReviewId == id);
+        var review = _unitOfWork.ReviewRepository.Get(r => r.ReviewId == id);
 
         if (review is null)
             return NotFound($"A review de id = {id} não foi encontrada");
@@ -42,7 +42,7 @@ public class ReviewController : Controller
         if (review is null)
             return BadRequest("Dados inválidos");
 
-        var reviewCriada = _repository.Create(review);
+        var reviewCriada = _unitOfWork.ReviewRepository.Create(review);
 
         return new CreatedAtRouteResult("ObterReview",
             new { id = reviewCriada.ReviewId }, reviewCriada);
@@ -54,22 +54,24 @@ public class ReviewController : Controller
         if (review.ReviewId != id)
             return BadRequest("Dados inválidos. O id foi modificado.");
 
-        _repository.Update(review);
+        _unitOfWork.ReviewRepository.Update(review);
         // considerar se não precisa de uma nova validação aqui
+        _unitOfWork.Commit();
         return Ok(review);
     }
 
     [HttpDelete]
     public ActionResult<Review> Delete (int id)
     {
-        var review = _repository.Get(r => r.ReviewId == id);
+        var review = _unitOfWork.ReviewRepository.Get(r => r.ReviewId == id);
 
         if (review is null)
             return NotFound($"Não foi encontrado um review com o id = {id}");
 
         var reviewExcluida = review;
 
-        _repository.Delete(review);
+        _unitOfWork.ReviewRepository.Delete(review);
+        _unitOfWork.Commit();
 
         return Ok(reviewExcluida);
     }
