@@ -19,6 +19,7 @@ var dbPassword = builder.Configuration["DB_PASSWORD"];
 //string mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 string mySqlConnection = $"{builder.Configuration.GetConnectionString("DefaultConnection")};pwd={dbPassword}";   //string de conexão ao banco de dados
 
+builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IGameRepository, GameRepository>();

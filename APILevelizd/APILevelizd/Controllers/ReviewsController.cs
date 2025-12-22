@@ -1,6 +1,8 @@
-﻿using APILevelizd.Models;
+﻿using APILevelizd.DTO;
+using APILevelizd.Models;
 using APILevelizd.Repositories;
 using APILevelizd.Repositories.Interfaces;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APILevelizd.Controllers;
@@ -10,70 +12,87 @@ namespace APILevelizd.Controllers;
 public class ReviewsController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
-    public ReviewsController(IUnitOfWork unitOfWork)
+    public ReviewsController(IUnitOfWork unitOfWork, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Review>> GetReviews()
+    public ActionResult<IEnumerable<ReviewDTO>> GetReviews()
     {
         var reviews = _unitOfWork.ReviewRepository.GetAll().ToList();
 
-        return Ok(reviews);
+        var reviewsDto = _mapper.Map<IEnumerable<ReviewDTO>>(reviews);
+
+        return Ok(reviewsDto);
     }
 
-    [HttpGet("{id}", Name = "ObterReview")]
-    public ActionResult<Review> Get(int id)
+    [HttpGet("{id}", Name = "GetReview")]
+    public ActionResult<ReviewDTO> Get(int id)
     {
         var review = _unitOfWork.ReviewRepository.Get(r => r.ReviewId == id);
 
         if (review is null)
             return NotFound($"A review de id = {id} não foi encontrada");
 
-        return Ok(review);
+        var reviewDto = _mapper.Map<ReviewDTO>(review);
+
+        return Ok(reviewDto);
     }
 
 
     [HttpPost]
-    public ActionResult<Review> Post(Review review)
+    public ActionResult<ReviewDTO> Post(ReviewDTO reviewDto)
     {
-        if (review is null)
+        if (reviewDto is null)
             return BadRequest("Dados inválidos");
 
-        var reviewCriada = _unitOfWork.ReviewRepository.Create(review);
+        var review = _mapper.Map<Review>(reviewDto);
 
-        return new CreatedAtRouteResult("ObterReview",
-            new { id = reviewCriada.ReviewId }, reviewCriada);
+        var newReview = _unitOfWork.ReviewRepository.Create(review);
+        _unitOfWork.Commit();
+
+        var newReviewDto = _mapper.Map<ReviewDTO>(newReview);
+
+        return new CreatedAtRouteResult("GetReview",
+            new { id = newReviewDto.ReviewId }, newReviewDto);
     }
 
     [HttpPut]
-    public ActionResult<Review> Put(int id, Review review)
+    public ActionResult<ReviewDTO> Put(int id, ReviewDTO reviewDto)
     {
-        if (review.ReviewId != id)
+        if (reviewDto.ReviewId != id)
             return BadRequest("Dados inválidos. O id foi modificado.");
 
-        _unitOfWork.ReviewRepository.Update(review);
-        // considerar se não precisa de uma nova validação aqui
+        var review = _mapper.Map<Review>(reviewDto);
+
+        var updatedReview = _unitOfWork.ReviewRepository.Update(review);
         _unitOfWork.Commit();
-        return Ok(review);
+
+        var updatedReviewDto = _mapper.Map<ReviewDTO>(updatedReview);
+
+        return Ok(updatedReviewDto);
     }
 
     [HttpDelete]
-    public ActionResult<Review> Delete (int id)
+    public ActionResult<ReviewDTO> Delete (int id)
     {
         var review = _unitOfWork.ReviewRepository.Get(r => r.ReviewId == id);
 
         if (review is null)
             return NotFound($"Não foi encontrado um review com o id = {id}");
 
-        var reviewExcluida = review;
+        var deletedReview = review;
 
         _unitOfWork.ReviewRepository.Delete(review);
         _unitOfWork.Commit();
 
-        return Ok(reviewExcluida);
+        var deletedReviewDto = _mapper.Map<ReviewDTO>(deletedReview);
+
+        return Ok(deletedReviewDto);
     }
 }
 

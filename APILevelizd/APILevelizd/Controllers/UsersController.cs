@@ -1,6 +1,8 @@
-﻿using APILevelizd.Models;
+﻿using APILevelizd.DTO;
+using APILevelizd.Models;
 using APILevelizd.Repositories;
 using APILevelizd.Repositories.Interfaces;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APILevelizd.Controllers
@@ -10,80 +12,100 @@ namespace APILevelizd.Controllers
     public class UsersController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public UsersController(IUnitOfWork unitOfWork)
+        public UsersController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public ActionResult<User> GetUsers()
+        public ActionResult<IEnumerable<UserDTO>> GetUsers()
         {
             var users = _unitOfWork.UserRepository.GetAll();
 
-            return Ok(users);
+            var usersDto = _mapper.Map<IEnumerable<UserDTO>>(users);
+
+            return Ok(usersDto);
         }
 
         [HttpGet("{id:int}", Name = "GetUser")]
-        public ActionResult<User> Get(int id)
+        public ActionResult<UserDTO> Get(int id)
         {
             var user = _unitOfWork.UserRepository.Get(u => u.UserId == id);
 
             if (user is null)
-                return NotFound($"Não foi encontrado um usuários com id = {id}.");
+                return NotFound($"Não foi encontrado um usuário com id = {id}.");
 
-            return Ok(user);
+            var userDto = _mapper.Map<UserDTO>(user);
+
+            return Ok(userDto);
         }
 
         [HttpGet("/{userId:int}/reviews")]
-        public ActionResult<User> GetUserReviews(int userId)
+        public ActionResult<IEnumerable<ReviewDTO>> GetUserReviews(int userId)
         {
-            var reviews = _unitOfWork.UserRepository.UserReviews(userId);
+            var userReviews = _unitOfWork.UserRepository.UserReviews(userId);
 
-            if (reviews is null)
-                return NotFound($"Não foi encontrado um usuário com nome {userId}");
+            if (userReviews is null)
+                return NotFound($"Não foram encontradas reviews para o usuário de id: {userId}");
 
-            return Ok(reviews);
+            var userReviewsDto = _mapper.Map<IEnumerable<ReviewDTO>>(userReviews);
+
+
+            return Ok(userReviewsDto);
         }
 
         [HttpPost]
-        public ActionResult<User> Post(User user)
+        public ActionResult<UserDTO> Post(UserDTO userDto)
         {
-            if (user is null)
+            if (userDto is null)
                 return BadRequest("Dados inválidos.");
 
-            var novoUsuario = _unitOfWork.UserRepository.Create(user);
+            var user = _mapper.Map<User>(userDto);
 
-            return new CreatedAtRouteResult("ObterUser",
-                new { id = user.UserId}, novoUsuario);
+            var newUser = _unitOfWork.UserRepository.Create(user);
+            _unitOfWork.Commit();
+
+            var newUserDto = _mapper.Map<UserDTO>(newUser);
+
+            return new CreatedAtRouteResult("GetUser",
+                new { id = newUserDto.UserId}, newUserDto);
         }
 
         [HttpPut("{id:int}")]
-        public ActionResult<User> Put (int id, User user)
+        public ActionResult<UserDTO> Put (int id, UserDTO userDto)
         {
-            if (user.UserId != id)
+            if (userDto.UserId != id)
                 return BadRequest("Dados inválidos. O id foi modificado.");
 
-            _unitOfWork.UserRepository.Update(user);
+            var user = _mapper.Map<User>(userDto);
+
+            var updatedUser = _unitOfWork.UserRepository.Update(user);
             _unitOfWork.Commit();
 
-            return Ok(user);
+            var updatedUserDto = _mapper.Map<UserDTO>(updatedUser);
+
+            return Ok(updatedUserDto);
         }
 
         [HttpDelete("{id:int:min(1)}")]
-        public ActionResult<User> Delete (int id)
+        public ActionResult<UserDTO> Delete (int id)
         {
             var user = _unitOfWork.UserRepository.Get(u => u.UserId == id);
 
             if (user is null)
                 return NotFound($"Não foi encontrado um game com o id = {id}");
 
-            var userExcluido = user;
+            var deletedUser = user;
 
             _unitOfWork.UserRepository.Delete(user);
             _unitOfWork.Commit();
 
-            return (userExcluido);
+            var deletedUserDto = _mapper.Map<UserDTO>(deletedUser);
+
+            return (deletedUserDto);
         }
     }
 }
