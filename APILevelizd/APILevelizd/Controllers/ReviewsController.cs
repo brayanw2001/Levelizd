@@ -23,9 +23,9 @@ public class ReviewsController : Controller
     [HttpGet]
     public ActionResult<IEnumerable<ReviewDTO>> GetReviews()
     {
-        var reviews = _unitOfWork.ReviewRepository.GetAll().ToList();
+        IEnumerable<Review> reviews = _unitOfWork.ReviewRepository.GetAll().ToList();
 
-        var reviewsDto = _mapper.Map<IEnumerable<ReviewDTO>>(reviews);
+        IEnumerable<ReviewDTO> reviewsDto = _mapper.Map<IEnumerable<ReviewDTO>>(reviews);
 
         return Ok(reviewsDto);
     }
@@ -33,12 +33,12 @@ public class ReviewsController : Controller
     [HttpGet("{id}", Name = "GetReview")]
     public ActionResult<ReviewDTO> Get(int id)
     {
-        var review = _unitOfWork.ReviewRepository.Get(r => r.ReviewId == id);
+        Review review = _unitOfWork.ReviewRepository.Get(r => r.ReviewId == id);
 
         if (review is null)
             return NotFound($"A review de id = {id} não foi encontrada");
 
-        var reviewDto = _mapper.Map<ReviewDTO>(review);
+        ReviewDTO reviewDto = _mapper.Map<ReviewDTO>(review);
 
         return Ok(reviewDto);
     }
@@ -50,29 +50,29 @@ public class ReviewsController : Controller
         if (reviewDto is null)
             return BadRequest("Dados inválidos");
 
-        var review = _mapper.Map<Review>(reviewDto);
+        Review review = _mapper.Map<Review>(reviewDto);
 
-        var newReview = _unitOfWork.ReviewRepository.Create(review);
+        Review newReview = _unitOfWork.ReviewRepository.Create(review);
         _unitOfWork.Commit();
 
-        var newReviewDto = _mapper.Map<ReviewDTO>(newReview);
+        ReviewDTO newReviewDto = _mapper.Map<ReviewDTO>(newReview);
 
         return new CreatedAtRouteResult("GetReview",
             new { id = newReviewDto.ReviewId }, newReviewDto);
     }
 
-    [HttpPut]
+    [HttpPut("{id:int}")]
     public ActionResult<ReviewDTO> Put(int id, ReviewDTO reviewDto)
     {
         if (reviewDto.ReviewId != id)
             return BadRequest("Dados inválidos. O id foi modificado.");
 
-        var review = _mapper.Map<Review>(reviewDto);
+        Review review = _mapper.Map<Review>(reviewDto);
 
-        var updatedReview = _unitOfWork.ReviewRepository.Update(review);
+        Review updatedReview = _unitOfWork.ReviewRepository.Update(review);
         _unitOfWork.Commit();
 
-        var updatedReviewDto = _mapper.Map<ReviewDTO>(updatedReview);
+        ReviewDTO updatedReviewDto = _mapper.Map<ReviewDTO>(updatedReview);
 
         return Ok(updatedReviewDto);
     }
@@ -80,19 +80,15 @@ public class ReviewsController : Controller
     [HttpDelete]
     public ActionResult<ReviewDTO> Delete (int id)
     {
-        var review = _unitOfWork.ReviewRepository.Get(r => r.ReviewId == id);
+        Review review = _unitOfWork.ReviewRepository.Get(r => r.ReviewId == id);
 
         if (review is null)
             return NotFound($"Não foi encontrado um review com o id = {id}");
 
-        var deletedReview = review;
-
         _unitOfWork.ReviewRepository.Delete(review);
         _unitOfWork.Commit();
 
-        var deletedReviewDto = _mapper.Map<ReviewDTO>(deletedReview);
-
-        return Ok(deletedReviewDto);
+        return NoContent();
     }
 }
 

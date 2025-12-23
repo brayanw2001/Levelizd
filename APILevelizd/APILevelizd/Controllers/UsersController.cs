@@ -1,4 +1,5 @@
-﻿using APILevelizd.DTO;
+﻿using System.Collections.Generic;
+using APILevelizd.DTO;
 using APILevelizd.Models;
 using APILevelizd.Repositories;
 using APILevelizd.Repositories.Interfaces;
@@ -23,9 +24,9 @@ namespace APILevelizd.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<UserDTO>> GetUsers()
         {
-            var users = _unitOfWork.UserRepository.GetAll();
+            IEnumerable<User> users = _unitOfWork.UserRepository.GetAll();
 
-            var usersDto = _mapper.Map<IEnumerable<UserDTO>>(users);
+            IEnumerable<UserDTO> usersDto = _mapper.Map<IEnumerable<UserDTO>>(users);
 
             return Ok(usersDto);
         }
@@ -33,12 +34,12 @@ namespace APILevelizd.Controllers
         [HttpGet("{id:int}", Name = "GetUser")]
         public ActionResult<UserDTO> Get(int id)
         {
-            var user = _unitOfWork.UserRepository.Get(u => u.UserId == id);
+            User user = _unitOfWork.UserRepository.Get(u => u.UserId == id);
 
             if (user is null)
                 return NotFound($"Não foi encontrado um usuário com id = {id}.");
 
-            var userDto = _mapper.Map<UserDTO>(user);
+            UserDTO userDto = _mapper.Map<UserDTO>(user);
 
             return Ok(userDto);
         }
@@ -46,12 +47,12 @@ namespace APILevelizd.Controllers
         [HttpGet("/{userId:int}/reviews")]
         public ActionResult<IEnumerable<ReviewDTO>> GetUserReviews(int userId)
         {
-            var userReviews = _unitOfWork.UserRepository.UserReviews(userId);
+            IEnumerable<Review> userReviews = _unitOfWork.UserRepository.UserReviews(userId);
 
             if (userReviews is null)
                 return NotFound($"Não foram encontradas reviews para o usuário de id: {userId}");
 
-            var userReviewsDto = _mapper.Map<IEnumerable<ReviewDTO>>(userReviews);
+            IEnumerable<ReviewDTO> userReviewsDto = _mapper.Map<IEnumerable<ReviewDTO>>(userReviews);
 
 
             return Ok(userReviewsDto);
@@ -63,12 +64,12 @@ namespace APILevelizd.Controllers
             if (userDto is null)
                 return BadRequest("Dados inválidos.");
 
-            var user = _mapper.Map<User>(userDto);
+            User user = _mapper.Map<User>(userDto);
 
-            var newUser = _unitOfWork.UserRepository.Create(user);
+            User newUser = _unitOfWork.UserRepository.Create(user);
             _unitOfWork.Commit();
 
-            var newUserDto = _mapper.Map<UserDTO>(newUser);
+            UserDTO newUserDto = _mapper.Map<UserDTO>(newUser);
 
             return new CreatedAtRouteResult("GetUser",
                 new { id = newUserDto.UserId}, newUserDto);
@@ -80,12 +81,12 @@ namespace APILevelizd.Controllers
             if (userDto.UserId != id)
                 return BadRequest("Dados inválidos. O id foi modificado.");
 
-            var user = _mapper.Map<User>(userDto);
+            User user = _mapper.Map<User>(userDto);
 
-            var updatedUser = _unitOfWork.UserRepository.Update(user);
+            User updatedUser = _unitOfWork.UserRepository.Update(user);
             _unitOfWork.Commit();
 
-            var updatedUserDto = _mapper.Map<UserDTO>(updatedUser);
+            UserDTO updatedUserDto = _mapper.Map<UserDTO>(updatedUser);
 
             return Ok(updatedUserDto);
         }
@@ -93,19 +94,15 @@ namespace APILevelizd.Controllers
         [HttpDelete("{id:int:min(1)}")]
         public ActionResult<UserDTO> Delete (int id)
         {
-            var user = _unitOfWork.UserRepository.Get(u => u.UserId == id);
+            User user = _unitOfWork.UserRepository.Get(u => u.UserId == id);
 
             if (user is null)
                 return NotFound($"Não foi encontrado um game com o id = {id}");
 
-            var deletedUser = user;
-
             _unitOfWork.UserRepository.Delete(user);
             _unitOfWork.Commit();
 
-            var deletedUserDto = _mapper.Map<UserDTO>(deletedUser);
-
-            return (deletedUserDto);
+            return NoContent();
         }
     }
 }

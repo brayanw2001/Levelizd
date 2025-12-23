@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-using APILevelizd.Context;
-using APILevelizd.DTO;
+﻿using APILevelizd.DTO;
 using APILevelizd.Models;
 using APILevelizd.Repositories;
 using APILevelizd.Repositories.Interfaces;
@@ -28,9 +26,9 @@ public class GamesController : ControllerBase
     [HttpGet]
     public ActionResult<IEnumerable<GameDTO>> GetGames()
     {
-        var games = _unitOfWork.GameRepository.GetAll();
+        IEnumerable<Game> games = _unitOfWork.GameRepository.GetAll();
 
-        var gamesDto = _mapper.Map<IEnumerable<GameDTO>>(games);
+        IEnumerable<GameDTO> gamesDto = _mapper.Map<IEnumerable<GameDTO>>(games);
 
         return Ok(gamesDto);
     }
@@ -38,13 +36,13 @@ public class GamesController : ControllerBase
     [HttpGet("{id:int}", Name = "GetGame")]
     public ActionResult<GameDTO> Get(int id)          
     {
-        var game = _unitOfWork.GameRepository.Get(g => g.GameId == id);
+        Game game = _unitOfWork.GameRepository.Get(g => g.GameId == id);
 
 
         if (game is null)
 {            return NotFound("Jogo não encontrado...");}
 
-        var gameDto = _mapper.Map<GameDTO>(game);
+        GameDTO gameDto = _mapper.Map<GameDTO>(game);
 
         return Ok(gameDto);
     }
@@ -52,18 +50,18 @@ public class GamesController : ControllerBase
     [HttpPost]
     public ActionResult<GameDTO> Post (GameDTO gameDto)
     {
-        var game = _mapper.Map<Game>(gameDto);
+        Game game = _mapper.Map<Game>(gameDto);
 
-        var newGame = _unitOfWork.GameRepository.Create(game);
+        Game newGame = _unitOfWork.GameRepository.Create(game);
         _unitOfWork.Commit();
 
-        var newGameDto = _mapper.Map<GameDTO>(game);
+        GameDTO newGameDto = _mapper.Map<GameDTO>(game);
 
         return new CreatedAtRouteResult("GetGame",
             new { id = newGameDto.GameId }, newGameDto);
     }
 
-    [HttpPut]
+    [HttpPut("{id:int}")]
     public ActionResult<GameDTO> Put (int id, GameDTO gameDto)
     {
         if (gameDto.GameId != id)
@@ -71,12 +69,12 @@ public class GamesController : ControllerBase
             return BadRequest("Dados inválidos. O id foi modificado.");
         }
 
-        var game = _mapper.Map<Game>(gameDto);
+        Game game = _mapper.Map<Game>(gameDto);
 
-        var updatedGame = _unitOfWork.GameRepository.Update(game);
+        Game updatedGame = _unitOfWork.GameRepository.Update(game);
         _unitOfWork.Commit();
 
-        var updatedGameDto = _mapper.Map<GameDTO>(game);
+        GameDTO updatedGameDto = _mapper.Map<GameDTO>(game);
 
         return Ok(updatedGameDto);
     }
@@ -84,21 +82,17 @@ public class GamesController : ControllerBase
     [HttpDelete("{id:int:min(1)}")]
     public ActionResult<GameDTO> Delete (int id)
     {
-        var game = _unitOfWork.GameRepository.Get(g => g.GameId == id);
+        Game game = _unitOfWork.GameRepository.Get(g => g.GameId == id);
 
         if (game is null)
         {
             return NotFound($"Não foi encontrado um game com o id = {id}");
         }
 
-        var deletedGame = game;
         _unitOfWork.GameRepository.Delete(game);
         _unitOfWork.Commit();
 
-        var deletedGameDto = _mapper.Map<GameDTO>(deletedGame);
-
-        return Ok(deletedGameDto);
-
+        return NoContent();
     }
 
 }

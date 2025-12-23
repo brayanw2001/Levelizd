@@ -2,8 +2,8 @@
 
 public enum Genres
 {  
-    FPS,
-    RPG,
-    JRPG,
+    FPS = 0,
+    RPG = 1,
+    JRPG = 2,
 }
 

@@ -11,11 +11,9 @@ namespace APILevelizd.Repositories
         {    
         }
             
-        public IEnumerable<Review> GameReviews(int gameId) // retorna todos os comentarios do jogo especificado
+        public IEnumerable<Review> GameReviews(int gameId) 
         {
-            var game = _context.Games.Include(g => g.Reviews).FirstOrDefault(g => g.GameId == gameId);
-
-            return game.Reviews.ToList();
+            return _context.Reviews.Where(r => r.GameId == gameId).ToList();
         }
     }
 }

@@ -13,7 +13,7 @@ public class User
     public string Email { get; set; }
 
     //[Required]    
-    public string Senha { get; set; }      
+    public string Password { get; set; }      
     public virtual ICollection<Review>? Reviews { get; }
 
     // adicionar foto futuramente
