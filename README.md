@@ -2,7 +2,7 @@
 
 **Levelizd** é um projeto pessoal, com foco no meu aprendizado em desenvolvimento com C#. A ideia é de um projeto progressivo, que crescerá em conjunto com meu conhecimento.
 
-A ideia é de uma plataforma social para manter **registros, notas e resenhas de jogos** — insipirado no Letterboxd.
+A ideia é de uma plataforma social para manter **registros, notas e resenhas de jogos** — inspirado no Letterboxd.
 
 ##  🚀 Recursos idealizados
 
