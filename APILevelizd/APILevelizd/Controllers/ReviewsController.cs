@@ -1,4 +1,4 @@
-﻿using APILevelizd.DTO;
+﻿using APILevelizd.DTO.Request;
 using APILevelizd.Models;
 using APILevelizd.Repositories;
 using APILevelizd.Repositories.Interfaces;
@@ -21,31 +21,31 @@ public class ReviewsController : Controller
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<ReviewDTO>> GetReviews()
+    public ActionResult<IEnumerable<CreateReviewDTO>> GetReviews()
     {
         IEnumerable<Review> reviews = _unitOfWork.ReviewRepository.GetAll().ToList();
 
-        IEnumerable<ReviewDTO> reviewsDto = _mapper.Map<IEnumerable<ReviewDTO>>(reviews);
+        IEnumerable<CreateReviewDTO> reviewsDto = _mapper.Map<IEnumerable<CreateReviewDTO>>(reviews);
 
         return Ok(reviewsDto);
     }
 
     [HttpGet("{id}", Name = "GetReview")]
-    public ActionResult<ReviewDTO> Get(int id)
+    public ActionResult<CreateReviewDTO> Get(int id)
     {
         Review review = _unitOfWork.ReviewRepository.Get(r => r.ReviewId == id);
 
         if (review is null)
             return NotFound($"A review de id = {id} não foi encontrada");
 
-        ReviewDTO reviewDto = _mapper.Map<ReviewDTO>(review);
+        CreateReviewDTO reviewDto = _mapper.Map<CreateReviewDTO>(review);
 
         return Ok(reviewDto);
     }
 
 
     [HttpPost]
-    public ActionResult<ReviewDTO> Post(ReviewDTO reviewDto)
+    public ActionResult<CreateReviewDTO> Post(CreateReviewDTO reviewDto)
     {
         if (reviewDto is null)
             return BadRequest("Dados inválidos");
@@ -55,14 +55,14 @@ public class ReviewsController : Controller
         Review newReview = _unitOfWork.ReviewRepository.Create(review);
         _unitOfWork.Commit();
 
-        ReviewDTO newReviewDto = _mapper.Map<ReviewDTO>(newReview);
+        CreateReviewDTO newReviewDto = _mapper.Map<CreateReviewDTO>(newReview);
 
         return new CreatedAtRouteResult("GetReview",
             new { id = newReviewDto.ReviewId }, newReviewDto);
     }
 
     [HttpPut("{id:int}")]
-    public ActionResult<ReviewDTO> Put(int id, ReviewDTO reviewDto)
+    public ActionResult<CreateReviewDTO> Put(int id, CreateReviewDTO reviewDto)
     {
         if (reviewDto.ReviewId != id)
             return BadRequest("Dados inválidos. O id foi modificado.");
@@ -72,13 +72,13 @@ public class ReviewsController : Controller
         Review updatedReview = _unitOfWork.ReviewRepository.Update(review);
         _unitOfWork.Commit();
 
-        ReviewDTO updatedReviewDto = _mapper.Map<ReviewDTO>(updatedReview);
+        CreateReviewDTO updatedReviewDto = _mapper.Map<CreateReviewDTO>(updatedReview);
 
         return Ok(updatedReviewDto);
     }
 
     [HttpDelete]
-    public ActionResult<ReviewDTO> Delete (int id)
+    public ActionResult<CreateReviewDTO> Delete (int id)
     {
         Review review = _unitOfWork.ReviewRepository.Get(r => r.ReviewId == id);
 

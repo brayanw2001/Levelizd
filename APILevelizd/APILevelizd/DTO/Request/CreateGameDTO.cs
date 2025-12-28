@@ -2,10 +2,10 @@
 using System.Text.Json.Serialization;
 using APILevelizd.Models.Enums;
 
-namespace APILevelizd.Models;
+namespace APILevelizd.DTO.Request;
 
-public class Game
-{   
+public class CreateGameDTO
+{
     public int GameId { get; set; }
 
     [Required]
@@ -14,13 +14,10 @@ public class Game
 
     [Required]
     public string YearOfRelease { get; set; }
+    
+    [Required]
+    public IFormFile? GameImage { get; set; }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public Genres Genre { get; set; }
-
-    [Required]    
-    public string GameImageUrl { get; set; }
-
-    [JsonIgnore]
-    public virtual ICollection<Review>? Reviews { get; set; }            // um game vai ter várias reviews
 }

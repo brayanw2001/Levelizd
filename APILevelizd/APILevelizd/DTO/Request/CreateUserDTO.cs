@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using APILevelizd.Models;
+using System.ComponentModel.DataAnnotations;
 
-namespace APILevelizd.Models;
+namespace APILevelizd.DTO.Request;
 
-public class User
+public class CreateUserDTO
 {
     public int UserId { get; set; }
 
@@ -16,8 +17,6 @@ public class User
     public string Password { get; set; }
 
     //[Required]    
-    public string UserImageUrl { get; set; }
-    public virtual ICollection<Review>? Reviews { get; }
+    public IFormFile? UserImage { get; set; }
 
-    // adicionar foto futuramente
 }

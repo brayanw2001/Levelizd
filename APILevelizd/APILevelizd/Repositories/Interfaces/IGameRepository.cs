@@ -1,4 +1,5 @@
 ﻿using APILevelizd.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace APILevelizd.Repositories.Interfaces
 {
