@@ -1,7 +1,9 @@
-﻿using APILevelizd.DTO;
+﻿using APILevelizd.DTO.Request;
+using APILevelizd.DTO.Response;
 using APILevelizd.Models;
 using APILevelizd.Repositories;
 using APILevelizd.Repositories.Interfaces;
+using APILevelizd.Services.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,26 +17,28 @@ public class GamesController : ControllerBase
 
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IFileService _fileService;
 
-    public GamesController(IUnitOfWork unitOfWork, IMapper mapper)
+    public GamesController(IUnitOfWork unitOfWork, IMapper mapper, [FromForm] IFileService fileService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _fileService = fileService;
     }
 
 
     [HttpGet]
-    public ActionResult<IEnumerable<GameDTO>> GetGames()
+    public ActionResult<IEnumerable<CreateGameDTO>> GetGames()
     {
         IEnumerable<Game> games = _unitOfWork.GameRepository.GetAll();
 
-        IEnumerable<GameDTO> gamesDto = _mapper.Map<IEnumerable<GameDTO>>(games);
+        IEnumerable<ResponseGameDTO> gamesDto = _mapper.Map<IEnumerable<ResponseGameDTO>>(games);
 
         return Ok(gamesDto);
     }
 
     [HttpGet("{id:int}", Name = "GetGame")]
-    public ActionResult<GameDTO> Get(int id)          
+    public ActionResult<CreateGameDTO> Get(int id)          
     {
         Game game = _unitOfWork.GameRepository.Get(g => g.GameId == id);
 
@@ -42,27 +46,34 @@ public class GamesController : ControllerBase
         if (game is null)
 {            return NotFound("Jogo não encontrado...");}
 
-        GameDTO gameDto = _mapper.Map<GameDTO>(game);
+        ResponseGameDTO gameDto = _mapper.Map<ResponseGameDTO>(game);
 
         return Ok(gameDto);
     }
 
     [HttpPost]
-    public ActionResult<GameDTO> Post (GameDTO gameDto)
+    public async Task<ActionResult<CreateGameDTO>> Post (CreateGameDTO gameDto)
     {
+        if (gameDto.GameImage.Length > 3 * 1024 * 1024)
+            return StatusCode(StatusCodes.Status413RequestEntityTooLarge, "A imagem do game não pode ser maior que 1MB.");
+
+        string[] allowedFileExtentions = [".jpg", ".jpeg", ".png"];
+        string createdImageName  = await _fileService.SaveFileAsync(gameDto.GameImage, allowedFileExtentions);
+
         Game game = _mapper.Map<Game>(gameDto);
+        game.GameImageUrl = createdImageName; // depois trocar ImageName por ImageURL
 
         Game newGame = _unitOfWork.GameRepository.Create(game);
         _unitOfWork.Commit();
 
-        GameDTO newGameDto = _mapper.Map<GameDTO>(game);
+        ResponseGameDTO newResponseGameDto = _mapper.Map<ResponseGameDTO>(game);
 
         return new CreatedAtRouteResult("GetGame",
-            new { id = newGameDto.GameId }, newGameDto);
+            new { id = newResponseGameDto.GameId }, newResponseGameDto);
     }
 
     [HttpPut("{id:int}")]
-    public ActionResult<GameDTO> Put (int id, GameDTO gameDto)
+    public ActionResult<CreateGameDTO> Put (int id, CreateGameDTO gameDto)
     {
         if (gameDto.GameId != id)
         {
@@ -74,13 +85,13 @@ public class GamesController : ControllerBase
         Game updatedGame = _unitOfWork.GameRepository.Update(game);
         _unitOfWork.Commit();
 
-        GameDTO updatedGameDto = _mapper.Map<GameDTO>(game);
+        ResponseGameDTO updatedGameDto = _mapper.Map<ResponseGameDTO>(game);
 
         return Ok(updatedGameDto);
     }
 
     [HttpDelete("{id:int:min(1)}")]
-    public ActionResult<GameDTO> Delete (int id)
+    public ActionResult<CreateGameDTO> Delete (int id)
     {
         Game game = _unitOfWork.GameRepository.Get(g => g.GameId == id);
 
